@@ -77,21 +77,17 @@ export const useCounterStore = defineStore('counter', {
  ]
   }),
   actions: {
-    editarCurso(cursoEditado){
-      if (this.cursos.id === cursoEditado.id) {
-        this.cursos.img = cursoEditado.img;
-        this.cursos.nombre = cursoEditado.nombre;
-        this.cursos.costo = cursoEditado.costo;
-        this.cursos.duracion = cursoEditado.duracion;
-        this.cursos.cupos = cursoEditado.cupos;
-        this.cursos.inscritos = cursoEditado.inscritos;
-        this.cursos.completado = cursoEditado.completado;
-        this.cursos.fecha_registro = cursoEditado.fecha_registro;
-        this.cursos.descripcion = cursoEditado.descripcion;
+    editarCurso(cursoEditado) {
+      const index = this.cursos.findIndex(curso => curso.id === cursoEditado.id);
+      if (index !== -1) {
+        this.cursos[index] = { ...cursoEditado };
       }
     },
-    eliminarCurso(cursoEliminar){
-      this.cursos = this.cursos.filter(cursos => cursos.id === cursoEliminar.id)
+    eliminarCurso(cursoEliminar) {
+      this.cursos = this.cursos.filter(curso => curso.id !== cursoEliminar.id);
+    },
+    agregarCurso(cursoAgregar) {
+      this.cursos.push(cursoAgregar)
     }
   }
 })

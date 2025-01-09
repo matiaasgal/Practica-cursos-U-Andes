@@ -1,0 +1,22 @@
+FALTA ARREGLAR FUNCIONALIDAD AGREGAR CURSO
+FALTA AÑADIR MODAL PARA EL AGREGAR CURSO
+HACER LA SUMA DE LOS TOTALES Y MOSTRARLOS EN LAS ALERTAS DE ADMINISTRACION
+AL AGREGAR UN CURSO Y AL MODIFICAR:
+	//AL AGREGAR
+	 La cantidad de inscritos no debe ser mayor que la cantidad de cupos disponibles. 
+	Por lo tanto, se debe mostrar un error si esto ocurre y no se debe permitir agregar el
+	curso.
+	
+	o El estado del curso (terminado) por defecto será falso (false).
+	
+	o La fecha de registro del curso será la que tome el sistema al momento de realizar el
+	registro.
+
+	//AL MODIFICAR
+	La cantidad de inscritos no debe ser mayor que la cantidad de cupos disponibles,
+	por lo tanto, se debe mostrar un error si esto ocurre y no se debe permitir la
+	actualización del curso.
+	o Si se modifica el estado del curso de activo ha terminado (cerrado), la cantidad de
+	inscritos debe automáticamente modificarse a cero.
+
+AGREGAR MODAL SI EL USUARIO QUIERE ELIMINAR UN CURSO QUE NOS DEJE ELIMINAR O CANCELAR (CONFIRMACION)
