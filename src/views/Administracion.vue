@@ -21,12 +21,6 @@ export default {
             contenedor: {},
             form: false,
             newId: 7,
-            totalAlumnos: 0,
-            totalInscritos: 0,
-            totalCupos: 0,
-            totalTerminados: 0,
-            totalActivos: 0,
-            totalCursos: 0,
         }
     },
     computed:{
@@ -37,6 +31,24 @@ export default {
             const mes = String(fechaActual.getMonth() + 1).padStart(2, '0');
             const year = fechaActual.getFullYear();
             return `${dia}/${mes}/${year}`;
+        },
+        totalCupos() {
+            return this.cursos.reduce((sum, curso) => sum + curso.cupos, 0);
+        },
+        totalInscritos() {
+            return this.cursos.reduce((sum, curso) => sum + curso.inscritos, 0);
+        },
+        cuposRestantes() {
+            return this.cursos.reduce((sum, curso) => sum + (curso.cupos - curso.inscritos), 0);
+        },
+        cursosTerminados() {
+            return this.cursos.filter(curso => curso.completado).length;
+        },
+        cursosActivos() {
+            return this.cursos.filter(curso => !curso.completado).length;
+        },
+        totalCursos() {
+            return this.cursos.length;
         },
     },
     methods: {
@@ -160,10 +172,10 @@ export default {
                             <input id="input1" type="text" placeholder="URL de imagen" v-model="this.curso.img">
                             <input id="input2" type="text" placeholder="Nombre" v-model="this.curso.nombre">
                             <label for="input3">Cupos: </label>
-                            <input id="input3" type="number" placeholder="Cupos" v-model="this.curso.cupos">
+                            <input id="input3agregar" type="number" placeholder="Cupos" v-model="this.curso.cupos">
                             <label for="input4">Inscritos: </label>
-                            <input id="input4" type="number" placeholder="Inscritos" v-model="this.curso.inscritos">
-                            <input id="input5" type="text" placeholder="Duracion" v-model="this.curso.duracion">
+                            <input id="input4agregar" type="number" placeholder="Inscritos" v-model="this.curso.inscritos">
+                            <input id="input5agregar" type="text" placeholder="Duracion" v-model="this.curso.duracion">
                             <label for="input6">Costo: </label>
                             <input id="input6" type="number" placeholder="Costo" v-model="this.curso.costo">
                             <textarea id="input7" placeholder="Descripcion" v-model="this.curso.descripcion"></textarea>
@@ -246,12 +258,13 @@ export default {
             </div>
         </form>
         <hr>
-        <div class="alert alert-secondary" role="alert"><i class="bi bi-people-fill"></i> Cantidad total de alumnos permitidos: </div>
-        <div class="alert alert-info" role="alert"><i class="bi bi-person-check"></i> Cantidad total de alumnos inscritos: </div>
-        <div class="alert alert-danger" role="alert"><i class="bi bi-person-add"></i> Cantidad total de cupos restantes: </div>
-        <div class="alert alert-dark" role="alert"><i class="bi bi-ban"></i> Cantidad total de cursos terminados: </div>
-        <div class="alert alert-warning" role="alert"><i class="bi bi-bell"></i> Cantidad total de cursos activos: </div>
-        <div class="alert alert-light" role="alert"><i class="bi bi-optical-audio-fill"></i> Cantidad total de cursos: </div>
+        <div class="alert alert-secondary" role="alert"><i class="bi bi-people-fill"></i> Cantidad total de alumnos permitidos: {{ totalCupos }} </div>
+        <div class="alert alert-info" role="alert"><i class="bi bi-person-check"></i> Cantidad total de alumnos inscritos: {{ totalInscritos }} </div>
+        <div class="alert alert-danger" role="alert"><i class="bi bi-person-add"></i> Cantidad total de cupos restantes: {{ cuposRestantes }}</div>
+        <div class="alert alert-dark" role="alert"><i class="bi bi-ban"></i> Cantidad total de cursos terminados: {{ cursosTerminados }}</div>
+        <div class="alert alert-warning" role="alert"><i class="bi bi-bell"></i> Cantidad total de cursos activos:  {{ cursosActivos }}</div>
+        <div class="alert alert-light" role="alert"><i class="bi bi-optical-audio-fill"></i> Cantidad total de cursos: {{ totalCursos }}
+        </div>
     </div>
 </template>
 
@@ -297,5 +310,21 @@ select {
     margin-top: 10px;
     width: 80%;
     height: 200px;
+}
+#input3agregar {
+    width: 15%;
+    margin-left: 8px;
+    margin-right: 8px;
+}
+#input4agregar {
+    width: 15%;
+    margin-left: 8px;
+    margin-right: 8px;
+    margin-bottom: 10px;
+}
+#input5agregar {
+    margin-left: 5px;
+    width: 30%;
+    margin-right: 10px;
 }
 </style>
