@@ -18,8 +18,8 @@ export default {
                 fecha_registro: '',
                 descripcion: '',
             },
+            contenedor: {},
             form: false,
-            form2: false,
             newId: 7,
             totalAlumnos: 0,
             totalInscritos: 0,
@@ -31,36 +31,45 @@ export default {
     },
     computed:{
         ...mapState(useCounterStore, ['cursos']),
+        obtenerFechaActual() {
+            const fechaActual = new Date();
+            const dia = String(fechaActual.getDate()).padStart(2, '0');
+            const mes = String(fechaActual.getMonth() + 1).padStart(2, '0');
+            const year = fechaActual.getFullYear();
+            return `${dia}/${mes}/${year}`;
+        },
     },
     methods: {
-            ...mapActions(useCounterStore, ['editarCurso', 'eliminarCurso']),
-            mostrarAgregar(){
-                console.log("SE AGREGARA UN NUEVO CURSO");
-                this.form2 = true
-            },
+            ...mapActions(useCounterStore, ['editarCurso', 'eliminarCurso', 'agregarCurso']),
+
+            //INTERACTUAN CON EL STORE
             agregandoCurso(){
-                this.form2 = false;
                 let cursoAgregar = {
                     id: this.newId,
-                    img: this.curso.img,
                     nombre: this.curso.nombre,
-                    costo: this.curso.costo,
-                    duracion: this.curso.duracion,
+                    img: this.curso.img,
                     cupos: this.curso.cupos,
                     inscritos: this.curso.inscritos,
-                    completado: this.curso.completado,
-                    fecha_registro: this.curso.fecha_registro,
+                    duracion: this.curso.duracion,
+                    costo: this.curso.costo,
                     descripcion: this.curso.descripcion,
+                    completado: false,
+                    fecha_registro: this.obtenerFechaActual,
                 }
                 this.newId++
-                console.log('EL OBJETO QUE SE ENVIARA AL STATE ES: ', cursoAgregar)
-                this.agregarCurso(cursoAgregar)
-                console.log('CURSO ENVIADO SIN PROBLEMAS POR PARTE DE ADMINISTRACION.VUE')
-            },
-            mostrarForm(cursoEditar) {
-                console.log('el curso que se editara es: ', cursoEditar.id)
-                this.curso = { ...cursoEditar };
-                this.form = true
+                if (cursoAgregar.nombre === '' || cursoAgregar.costo === 0 || cursoAgregar.duracion === '' || cursoAgregar.cupos === 0) {
+                    alert('Por favor ingrese correctamente los datos')
+                    this.limpiarForm
+                }
+                else if (cursoAgregar.inscritos > cursoAgregar.cupos) {
+                    alert('La cantidad de inscritos es mayor a la cantidad de cupos que tiene el curso...')
+                }
+                else {
+                    if (cursoAgregar.completado)
+                    console.log('EL OBJETO QUE SE ENVIARA AL STATE ES: ', cursoAgregar)
+                    this.agregarCurso(cursoAgregar)
+                    console.log('CURSO ENVIADO SIN PROBLEMAS POR PARTE DE ADMINISTRACION.VUE')
+                }
             },
             modificarCurso() {
                 this.form = false;
@@ -78,10 +87,34 @@ export default {
                     fecha_registro: this.curso.fecha_registro,
                     descripcion: this.curso.descripcion,
                 }
-                console.log('EL OBJETO QUE SE ENVIARA AL STATE ES: ', cursoEditado)
-                this.editarCurso(cursoEditado)
-                console.log('CURSO ENVIADO SIN PROBLEMAS POR PARTE DE ADMINISTRACION.VUE')
+                if (cursoEditado.nombre === '' || cursoEditado.costo === 0 || cursoEditado.duracion === '' || cursoEditado.cupos === 0) {
+                    alert('Por favor ingrese correctamente los datos')
+                }
+                else if (cursoEditado.inscritos > cursoEditado.cupos) {
+                    alert('La cantidad de inscritos es mayor a la cantidad de cupos que tiene el curso...')
+                }
+                else if (cursoEditado.completado === true) {
+                    cursoEditado.inscritos = 0
+                    console.log('EL OBJETO QUE SE ENVIARA AL STATE ES: ', cursoEditado)
+                    this.editarCurso(cursoEditado)
+                    console.log('CURSO ENVIADO SIN PROBLEMAS POR PARTE DE ADMINISTRACION.VUE')
+                }
+                else {
+                    console.log('EL OBJETO QUE SE ENVIARA AL STATE ES: ', cursoEditado)
+                    this.editarCurso(cursoEditado)
+                    console.log('CURSO ENVIADO SIN PROBLEMAS POR PARTE DE ADMINISTRACION.VUE')
+                }
+            },
+            borrarCurso() {
+                console.log('se eliminara este curso: ', this.contenedor.id)
+                this.eliminarCurso(this.contenedor)
+            },
 
+            //INTERACCIONES EN ADMINISTRACION VUE
+            mostrarForm(cursoEditar) {
+                console.log('el curso que se editara es: ', cursoEditar.id)
+                this.curso = { ...cursoEditar };
+                this.form = true
             },
             limpiarForm(){
                 this.curso = {
@@ -97,14 +130,16 @@ export default {
                     descripcion: '',
                 };
             },
-            borrarCurso(cursoEliminar) {
-                console.log('el curso que se eliminara es: ', cursoEliminar.id)
-                this.eliminarCurso(cursoEliminar);
-            },
             cancelarModificacion(){
                 this.form = false;
-                this.form2 = false;
                 this.limpiarForm()
+            },
+            cancelarEliminacion(){
+                this.contenedor = {}
+            },
+            cambioVar(cursoEliminar) {
+                console.log('curso recibido: ', cursoEliminar.id)
+                this.contenedor = cursoEliminar
             }
     }
 }
@@ -112,8 +147,37 @@ export default {
 <template>
     <div class="container text-center">
         <h1 class="mt-3">{{ title }}</h1>
-        <button class="btn btn-primary mt-5" @click.prevent="mostrarAgregar">{{ button }}</button>
-
+        <button type="button" class="btn btn-primary mt-5" data-bs-toggle="modal" data-bs-target="#exampleModal"> {{ button }} </button>
+        <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h1 class="modal-title fs-5" id="exampleModalLabel">Agregar curso</h1>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <form class="border-rounded shadow-sm">
+                            <input id="input1" type="text" placeholder="URL de imagen" v-model="this.curso.img">
+                            <input id="input2" type="text" placeholder="Nombre" v-model="this.curso.nombre">
+                            <label for="input3">Cupos: </label>
+                            <input id="input3" type="number" placeholder="Cupos" v-model="this.curso.cupos">
+                            <label for="input4">Inscritos: </label>
+                            <input id="input4" type="number" placeholder="Inscritos" v-model="this.curso.inscritos">
+                            <input id="input5" type="text" placeholder="Duracion" v-model="this.curso.duracion">
+                            <label for="input6">Costo: </label>
+                            <input id="input6" type="number" placeholder="Costo" v-model="this.curso.costo">
+                            <textarea id="input7" placeholder="Descripcion" v-model="this.curso.descripcion"></textarea>
+                            <hr>
+                        </form>
+                    </div>
+                    <div class="modal-footer d-flex justify-content-center mt-3">
+                        <button type="button" @click.prevent="agregandoCurso" class="btn btn-primary me-2" data-bs-dismiss="modal">Agregar</button>
+                        <button @click.prevent="limpiarForm" class="btn btn-warning me-2">Limpiar</button>
+                        <button type="button" @click.prevent="cancelarModificacion" class="btn btn-danger" data-bs-dismiss="modal">Cancelar</button>
+                    </div>
+                </div>
+            </div>
+        </div>
         <table class="table table-bordered mt-4">
             <thead class="table-light">
                 <tr>
@@ -136,46 +200,48 @@ export default {
                     <td class="text-success">{{ cantCursos.costo }}</td>
                     <td><span :class="cantCursos.completado === true ? 'badge bg-success' : 'badge bg-secondary'">{{ cantCursos.completado }}</span></td>
                     <td>{{ cantCursos.fecha_registro }}</td>
-                    <td><i class="bi bi-pencil-square text-warning me-2" @click="mostrarForm(cantCursos)" role="button" title="Editar"></i><i class="bi bi-trash text-danger" @click="borrarCurso(cantCursos)" role="button" title="Eliminar"></i></td>
+                    <td><i class="bi bi-pencil-square text-warning me-2" @click="mostrarForm(cantCursos)" role="button" title="Editar"></i> <i class="bi bi-trash text-danger" @click="cambioVar(cantCursos)" data-bs-toggle="modal" data-bs-target="#modalBorrar" role="button" title="Eliminar"></i></td>
+                    <div class="modal fade" id="modalBorrar" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h1 class="modal-title fs-5" id="exampleModalLabel">ELIMINAR CURSO</h1>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <h5>Esta seguro que desea eliminar el curso seleccionado?<hr><span>(Esta accion eliminara completamente el curso)</span></h5>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal" @click="cancelarEliminacion">Cerrar</button>
+                                    <button type="button" class="btn btn-danger" data-bs-dismiss="modal" @click="borrarCurso">Eliminar</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                 </tr>
             </tbody>
         </table>
         <form v-if="form" class="mt-4 p-3 border-rounded shadow-sm">
             <input id="input1" type="text" placeholder="URL de imagen" v-model="this.curso.img">
             <input id="input2" type="text" placeholder="Nombre" v-model="this.curso.nombre">
+            <label for="input3">Cupos: </label>
             <input id="input3" type="number" placeholder="Cupos" v-model="this.curso.cupos">
+            <label for="input4">Inscritos: </label>
             <input id="input4" type="number" placeholder="Inscritos" v-model="this.curso.inscritos">
+            <label for="input5">Duracion:</label>
             <input id="input5" type="text" placeholder="Duracion" v-model="this.curso.duracion">
-            <input id="input6" type="number" placeholder="Costo" v-model="this.curso.costo">
+            <label>Terminado:</label>
             <select v-model="curso.completado" polaceholder="Terminado">
                 <option :value="true">Sí</option>
                 <option :value="false">No</option>
             </select>
-            <input id="input7" type="text" placeholder="Fecha de registro" v-model="this.curso.fecha_registro">
-            <input id="input8" type="text" placeholder="Descripcion" v-model="this.curso.descripcion">
+            <input id="input-fecha" type="text" placeholder="Fecha de registro" v-model="this.curso.fecha_registro">
+            <label for="input6">Costo: </label>
+            <input id="input6" type="number" placeholder="Costo" v-model="this.curso.costo">
+            <textarea id="input7" placeholder="Descripcion" v-model="this.curso.descripcion"></textarea>
             <hr>
             <div class="d-flex justify-content-center mt-3">
                 <button @click.prevent="modificarCurso" class="btn btn-primary me-2">Modificar</button>
-                <button @click.prevent="cancelarModificacion" class="btn btn-danger">Cancelar</button>
-            </div>
-        </form>
-        <form v-if="form2" class="mt-4 p-3 border-rounded shadow-sm">
-            <input id="input1" type="text" placeholder="URL de imagen" v-model="this.curso.img">
-            <input id="input2" type="text" placeholder="Nombre" v-model="this.curso.nombre">
-            <input id="input3" type="number" placeholder="Cupos" v-model="this.curso.cupos">
-            <input id="input4" type="number" placeholder="Inscritos" v-model="this.curso.inscritos">
-            <input id="input5" type="text" placeholder="Duracion" v-model="this.curso.duracion">
-            <input id="input6" type="number" placeholder="Costo" v-model="this.curso.costo">
-            <select v-model="curso.completado" polaceholder="Terminado">
-                <option :value="true">Sí</option>
-                <option :value="false">No</option>
-            </select>
-            <input id="input7" type="text" placeholder="Fecha de registro" v-model="this.curso.fecha_registro">
-            <input id="input8" type="text" placeholder="Descripcion" v-model="this.curso.descripcion">
-            <hr>
-            <div class="d-flex justify-content-center mt-3">
-                <button @click.prevent="agregandoCurso" class="btn btn-primary me-2">Agregar</button>
-                <button @click.prevent="limpiarForm" class="btn btn-warning me-2">Limpiar</button>
                 <button @click.prevent="cancelarModificacion" class="btn btn-danger">Cancelar</button>
             </div>
         </form>
@@ -191,32 +257,45 @@ export default {
 
 <style scoped>
 #input1 {
-    width: 30%;
-    margin-right: 10px;
+    width: 100%;
+    margin-bottom: 10px;
 }
 #input2 {
-    width: 30%;
+    width: 100%;
     margin-right: 10px;
+    margin-bottom: 10px;
 }
 #input3 {
-    width: 4%;
-    margin-right: 10px;
+    width: 6%;
+    margin-left: 8px;
+    margin-right: 8px;
 }
 #input4 {
-    width: 4%;
+    width: 6%;
+    margin-left: 8px;
+    margin-right: 8px;
+}
+#input5 {
+    margin-left: 5px;
+    width: 20%;
     margin-right: 10px;
 }
-#input5, #input6 {
-    width: 8%;
-    margin-right: 10px;
+select {
+    margin-left: 5px;
+    margin-right: 5px;
+}
+#input-fecha {
+    margin-right: 5px;
+    margin-left: 5px;
+}
+#input6 {
+    width: 18%;
+    margin-left: 8px;
+    margin-right: 8px;
 }
 #input7 {
-    margin-right: 10px;
-}
-#input7, #input8 {
     margin-top: 10px;
-}
-#input8 {
-    width: 60%;
+    width: 80%;
+    height: 200px;
 }
 </style>
