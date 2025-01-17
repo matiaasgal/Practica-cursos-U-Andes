@@ -1,1 +1,0 @@
-Hay que instalar las dependencias ya que las borre para poder subirlo 
