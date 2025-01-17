@@ -29,4 +29,7 @@ export default {
 </template>
 
 <style scoped>
+template {
+  background-color: gray;
+}
 </style>

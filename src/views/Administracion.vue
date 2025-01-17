@@ -157,7 +157,7 @@ export default {
 }
 </script>
 <template>
-    <div class="container text-center">
+    <div class="container text-center ">
         <h1 class="mt-3">{{ title }}</h1>
         <button type="button" class="btn btn-primary mt-5" data-bs-toggle="modal" data-bs-target="#exampleModal"> {{ button }} </button>
         <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
@@ -248,6 +248,8 @@ export default {
                 <option :value="false">No</option>
             </select>
             <input id="input-fecha" type="text" placeholder="Fecha de registro" v-model="this.curso.fecha_registro">
+            <br>
+            <br>
             <label for="input6">Costo: </label>
             <input id="input6" type="number" placeholder="Costo" v-model="this.curso.costo">
             <textarea id="input7" placeholder="Descripcion" v-model="this.curso.descripcion"></textarea>
